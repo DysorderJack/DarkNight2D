@@ -21,6 +21,8 @@ private bool isInvulnerable = false;
 [Header("Knockback")]
 [SerializeField] private float knockbackForce = 8f;
 
+[SerializeField] private GameOverUI gameOverUI;
+
 private SpriteRenderer sprite;
 
 private Rigidbody2D rb;
@@ -56,7 +58,6 @@ private bool isDead = false;
     if (heartUI != null)
         heartUI.UpdateHearts(currentHealth);
 
-    Debug.Log("Vida: " + currentHealth);
 
     if (currentHealth <= 0)
     {
@@ -79,14 +80,14 @@ private bool isDead = false;
         Debug.Log("Vida actual: " + currentHealth);
     }
 
-    private void Die()
+    public void Die()
 {
+    Invoke(nameof(ShowGameOver),1f);
     if (isDead)
         return;
 
     isDead = true;
 
-    Debug.Log("Jugador muerto");
 
     animator.SetTrigger("Die");
 
@@ -105,6 +106,8 @@ private bool isDead = false;
     rb.gravityScale = 0;
     rb.constraints = RigidbodyConstraints2D.FreezeAll;
 
+    
+    
     
 
 }
@@ -135,6 +138,13 @@ public void ApplyKnockback(Vector2 enemyPosition)
     rb.linearVelocity = Vector2.zero;
 
     rb.AddForce(new Vector2(direction * knockbackForce, 2f), ForceMode2D.Impulse);
+}
+
+private void ShowGameOver()
+{
+    
+    if(gameOverUI != null)
+        gameOverUI.ShowGameOver();
 }
 
 }

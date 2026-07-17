@@ -3,44 +3,41 @@ using System.Collections;
 
 public class EnemyDamage : MonoBehaviour
 {
-    [Header("Daño")]
     [SerializeField] private int damage = 10;
     [SerializeField] private float damageInterval = 1f;
 
-    private Coroutine damageCoroutine;
+    private bool canDamage = true;
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerStay2D(Collider2D other)
     {
-        if (!collision.gameObject.CompareTag("Player"))
+        if (!canDamage)
             return;
 
-        PlayerHealth health = collision.gameObject.GetComponent<PlayerHealth>();
-
-        if (health != null)
-        {
-            damageCoroutine = StartCoroutine(DamageOverTime(health));
-        }
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if (!collision.gameObject.CompareTag("Player"))
+        if (!other.CompareTag("Player"))
             return;
 
-        if (damageCoroutine != null)
-        {
-            StopCoroutine(damageCoroutine);
-            damageCoroutine = null;
-        }
+        PlayerHealth player = other.GetComponent<PlayerHealth>();
+
+        if (player == null)
+            return;
+
+        player.TakeDamage(damage);
+        player.ApplyKnockback(transform.position);
+
+        StartCoroutine(DamageCooldown());
     }
 
-    private IEnumerator DamageOverTime(PlayerHealth health)
+    private IEnumerator DamageCooldown()
     {
-        while (true)
-        {
-            health.TakeDamage(damage);
-            health.ApplyKnockback(transform.position);
-            yield return new WaitForSeconds(damageInterval);
-        }
+        canDamage = false;
+
+        yield return new WaitForSeconds(damageInterval);
+
+        canDamage = true;
     }
+
+    private void OnTriggerEnter2D(Collider2D other)
+{
+    Debug.Log("Entró al trigger: " + other.name);
+}
 }

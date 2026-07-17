@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
+    [Header("Drop")]
+    [SerializeField] private GameObject heartPrefab;
+    [SerializeField] [Range(0,100)] private int dropChance = 40;
+
     [Header("Vida")]
     [SerializeField] private int maxHealth = 30;
 
@@ -28,7 +32,7 @@ public class EnemyHealth : MonoBehaviour
         // Animación de recibir daño (si existe)
         if (animator != null)
         {
-            animator.SetTrigger("Hit");
+            //animator.SetTrigger("Hit");
         }
 
         if (currentHealth <= 0)
@@ -45,14 +49,38 @@ public class EnemyHealth : MonoBehaviour
 
         if (animator != null)
         {
-            animator.SetTrigger("Die");
-
+            //animator.SetTrigger("Die");
+             DropLoot();
             // Espera un segundo antes de destruir el enemigo
             Destroy(gameObject, 1f);
+
         }
         else
         {
+             DropLoot();
             Destroy(gameObject);
         }
     }
+
+  private void DropLoot()
+{
+    int random = Random.Range(0, 25);
+
+    if (random < dropChance)
+    {
+        GameObject heart = Instantiate(
+            heartPrefab,
+            transform.position + Vector3.up * 0.5f,
+            Quaternion.identity);
+
+        Rigidbody2D rb = heart.GetComponent<Rigidbody2D>();
+
+        if (rb != null)
+        {
+            rb.AddForce(
+                 new Vector2(Random.Range(-0.5f, 0.5f), 1.5f),
+                ForceMode2D.Impulse);
+        }
+    }
+}
 }
